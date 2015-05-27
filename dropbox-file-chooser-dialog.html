@@ -8,8 +8,7 @@
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-styles/shadow.html">
 <link rel="import" href="../paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../paper-material/paper-material.html">
-<script src="//cdnjs.cloudflare.com/ajax/libs/dropbox.js/0.10.2/dropbox.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/dropbox.js/0.10.3/dropbox.min.js"></script>
 
 <!--
   Opens a modal dialog for selecting Dropbox files.
@@ -17,7 +16,6 @@
 Example:
 
     <dropbox-file-chooser-dialog app-key="..." with-backdrop></dropbox-file-chooser-dialog>
-
 -->
 <dom-module id="dropbox-file-chooser-dialog">
   <style>
@@ -118,9 +116,9 @@ Polymer({
 
   properties: {
     /**
-     * The app key provided by Dropbox.
+     * The API key to access Dropbox.
      */
-    appKey: String,
+    apiKey: String,
 
     /**
      * The mode of dialog. Either `open` (default) or `save`.
@@ -152,8 +150,9 @@ Polymer({
 
   /**
    * Opens the dialog with starting folder of path.
+   *
    * @param {string} path The starting folder path
-   * @param {!string} mode
+   * @param {string=} mode Mode to set
    */
   openFolder: function (path, mode) {
     if (mode) {
@@ -163,37 +162,13 @@ Polymer({
     this._enterFolder(path);
   },
 
-  test: function () {
-    var _this = this;
-    this._dropbox = {
-      authenticate: function(cb) {
-        cb(null, _this.dropbox)
-      },
-      readdir: function (path, opt, cb) {
-        var dir = { path: path };
-        var entries = [];
-
-        for (var i = 0; i < Math.random() * 10; i++) {
-          var name = Math.random().toString(36).substring(2);
-          var e = { name: name, path: path + '/' + name, isFolder: true };
-          entries.push(e);
-        }
-
-        setTimeout(function () {
-          cb(null, null, dir, entries)
-        }, 1000 * Math.random() + 300);
-      },
-      isAuthenticated: function () { return true }
-    },
-    this.showOpenDialog();
-  },
-
   /**
    * Convenient method to write to specified file.
-   * @param Doprbox.File.Stat file
-   * @param content string
-   * @param object options
-   * @param cb
+   *
+   * @param {Doprbox.File.Stat} file
+   * @param {string} content
+   * @param {object} options
+   * @param {function(err, dropbox)} cb
    */
   writeFile: function (file, content, options, cb) {
     this.authenticate(function (err, dropbox) {
@@ -211,6 +186,7 @@ Polymer({
 
   /**
    * Convenient method to read a file from path.
+   *
    * @param {string} path
    * @param {function(err, content, stat, rangeInfo)} cb
    */
@@ -231,12 +207,17 @@ Polymer({
     this._dropbox = new Dropbox.Client({ key: this.appKey });
   },
 
+  /**
+   * Fired when the user entered a new folder.
+   *
+   * @event dropbox-folder-loaded
+   */
+
   _enterFolder: function (path) {
     var _this = this;
 
     this.path = path;
     this.disabled = true;
-    this.$.entries.classList.add('disabled');
 
     if (path !== '/' && path !== '') {
       this.$.backButton.classList.remove('hidden');
@@ -246,30 +227,29 @@ Polymer({
 
     this._visit(path, function (err, dir, entries) {
       _this.disabled = false;
-      _this.$.entries.classList.remove('disabled');
+
+      if (err) {
+        _this.fire('dropbox-error', err);
+        return;
+      }
 
       _this.current = dir;
       _this.entries = entries;
+
+      _this.fire('dropbox-folder-loaded');
     });
   },
 
   /**
    * Convenient method to obtain an authenticated Dropbox client.
-   * @param {(err, client) => void} cb
+   * @param {function (err, client)} cb
    */
   authenticate: function (cb) {
     var _this = this;
     if (this._dropbox.isAuthenticated()) {
       cb(null, this._dropbox);
-    }
-    else {
-      this._dropbox.authenticate(function (err, client) {
-        if (err) {
-          _this.fire('dropbox-error', { type: 'authenticate', error: err });
-        }
-
-        cb(err, client);
-      });
+    } else {
+      this._dropbox.authenticate(cb);
     }
   },
 
@@ -287,11 +267,15 @@ Polymer({
   },
 
   /**
+   * Fired when a file is chosen in `open` mode.
+   *
    * @event dropbox-file-chosen-open
    * @detail {{file: Dropbox.File.Stat}}
    */
 
   _onEnterItem: function (e) {
+    if (this.disabled) return;
+
     var entry = e.model.get('item');
     if (entry.isFolder) {
       this._enterFolder(entry.path);
@@ -303,16 +287,22 @@ Polymer({
   },
 
   /**
+   * Fired when the user clicked the save button with a filename.
+   *
    * @event dropbox-file-chosen-save
    * @detail {{folder: Dropbox.File.Stat, filename: String}}
    */
 
   _onSave: function () {
+    if (this.disabled) return;
+
     this.close();
     this.fire('dropbox-file-chosen-save', { folder: this.current, filename: this.$.filename.value });
   },
 
   _onBack: function () {
+    if (this.disabled) return;
+
     this._enterFolder(this.path.replace(/\/[^\/]+$/, ''));
   }
 });
