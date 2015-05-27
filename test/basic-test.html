@@ -64,7 +64,7 @@
           assert.isTrue(dialog.isSaveMode);
         });
 
-        test('openFolder -> _onEnterItem', function (done) {
+        test('openFolder(open)', function (done) {
           once(dialog, 'dropbox-folder-loaded', function (ev) {
             var backButton = dialog.$.backButton;
 
@@ -78,7 +78,12 @@
                 assert.isFalse(backButton.classList.contains('hidden'));
                 assert.isFalse(!!backButton.attributes.getNamedItem('disabled'));
 
-                done();
+                once(dialog, 'dropbox-file-chosen-open', function (ev) {
+                  assert.equal(ev.detail.file.name, 'file1');
+                  done();
+                });
+
+                MockInteractions.tap(entries[1]);
               });
 
               MockInteractions.tap(entries[0]);
@@ -87,6 +92,40 @@
           });
 
           dialog.openFolder('/', 'open');
+        });
+
+        test('openFolder(save)', function (done) {
+          once(dialog, 'dropbox-folder-loaded', function (ev) {
+            var backButton = dialog.$.backButton;
+
+            assert.isTrue(backButton.classList.contains('hidden'));
+
+            Polymer.Base.async(function () {
+              var entries = dialog.querySelectorAll('#entries li');
+              assert.operator(entries.length, '>=', 2);
+
+              once(dialog, 'dropbox-folder-loaded', function (ev) {
+                assert.isFalse(backButton.classList.contains('hidden'));
+                assert.isFalse(!!backButton.attributes.getNamedItem('disabled'));
+
+                dialog.$.filename.value = 'foobar';
+
+                once(dialog, 'dropbox-file-chosen-save', function (ev) {
+                  assert.equal(ev.detail.filename, 'foobar');
+                  done();
+                });
+
+                MockInteractions.tap(dialog.querySelector('paper-button'));
+
+                done();
+              });
+
+              MockInteractions.tap(entries[0]);
+              assert.isTrue(!!backButton.attributes.getNamedItem('disabled'));
+            });
+          });
+
+          dialog.openFolder('/', 'save');
         });
       });
     </script>
