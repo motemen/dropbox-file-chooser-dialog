@@ -1,0 +1,28 @@
+{
+  "name": "dropbox-file-chooser-dialog",
+  "version": "0.0.0",
+  "authors": [
+    "motemen <motemen@gmail.com>"
+  ],
+  "description": "A Polymer dialog element which shows Dropbox file open/save dialog",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "dropbox"
+  ],
+  "main": "dropbox-file-chooser-dialog.html",
+  "license": "MIT",
+  "homepage": "https://github.com/motemen/dropbox-file-chooser-dialog",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "/demo/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.9.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "*"
+  }
+}
