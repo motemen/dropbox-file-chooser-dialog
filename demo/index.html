@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <title>dropbox-file-chooser-dialog demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../dropbox-file-chooser-dialog.html">
+  <style>
+dropbox-file-chooser-dialog {
+  width: 60%;
+  height: 60%;
+}
+  </style>
+  </head>
+
+  <body>
+    <dropbox-file-chooser-dialog api-key="ec1v6svsgsz9foc"></dropbox-file-chooser-dialog>
+
+    <button>Open</button>
+
+    <script>
+window.addEventListener('WebComponentsReady', function () {
+  var dialog = document.querySelector('dropbox-file-chooser-dialog');
+  document.querySelector('button').addEventListener('click', function () {
+    dialog.openFolder('/');
+  });
+
+  dialog.addEventListener('dropbox-file-chosen-open', function (ev) {
+    alert('You have chosen: ' + ev.detail.file.path);
+  });
+});
+    </script>
+  </body>
+</html>
