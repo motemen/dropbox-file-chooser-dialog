@@ -241,10 +241,16 @@ Polymer({
         return;
       }
 
+      if (_this._focusedItem) {
+        _this._focusedItem.blur();
+        _this._focusedItem = null;
+      }
+
       _this.current = dir;
       _this.entries = entries;
 
       _this.fire('dropbox-folder-loaded');
+
     });
   },
 
@@ -287,7 +293,7 @@ Polymer({
     var entry = e.model.get('item');
     if (entry.isFolder) {
       this._enterFolder(entry.path);
-      // TODO blur
+      this._focusedItem = e.target;
     } else if (this.mode === 'open') {
       this.close();
       this.fire('dropbox-file-chosen-open', { file: entry });
