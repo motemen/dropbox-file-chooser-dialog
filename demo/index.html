@@ -16,13 +16,14 @@ dropbox-file-chooser-dialog {
   </head>
 
   <body>
-    <dropbox-file-chooser-dialog api-key="ec1v6svsgsz9foc"></dropbox-file-chooser-dialog>
+    <dropbox-file-chooser-dialog api-key="9qhn8uij0flyuyw" popup-oauth-receiver-url="./oauth_receiver.html"></dropbox-file-chooser-dialog>
 
     <button>Open</button>
 
     <script>
 window.addEventListener('WebComponentsReady', function () {
   var dialog = document.querySelector('dropbox-file-chooser-dialog');
+
   document.querySelector('button').addEventListener('click', function () {
     dialog.openFolder('/');
   });

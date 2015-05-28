@@ -139,6 +139,11 @@ Polymer({
     isSaveMode: {
       type: Boolean,
       computed: '_isSaveMode(mode)'
+    },
+
+    popupOauthReceiverUrl: {
+      type: String,
+      observer: '_popupOauthReceiverUrlChanged'
     }
   },
 
@@ -205,8 +210,9 @@ Polymer({
     });
   },
 
-  ready: function () {
+  attached: function () {
     this._dropbox = new Dropbox.Client({ key: this.apiKey });
+    this._updateAuthDriver();
   },
 
   /**
@@ -306,6 +312,26 @@ Polymer({
     if (this.disabled) return;
 
     this._enterFolder(this.path.replace(/\/[^\/]+$/, ''));
+  },
+
+  _popupOauthReceiverUrlChanged: function () {
+      this._updateAuthDriver();
+  },
+
+  _updateAuthDriver: function () {
+    if (!this._dropbox) {
+      return;
+    }
+
+    if (this.popupOauthReceiverUrl) {
+      this._dropbox.authDriver(
+        new Dropbox.AuthDriver.Popup({
+          receiverUrl: Polymer.ResolveUrl.resolveUrl(this.popupOauthReceiverUrl, location.href)
+        })
+      );
+    } else {
+      this._dropbox.authDriver(null);
+    }
   }
 });
 </script>
