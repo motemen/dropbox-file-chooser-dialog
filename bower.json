@@ -15,9 +15,7 @@
   "license": "MIT",
   "homepage": "https://github.com/motemen/dropbox-file-chooser-dialog",
   "ignore": [
-    "/.*",
-    "/test/",
-    "/demo/"
+    "/.*"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^0.9.0",
