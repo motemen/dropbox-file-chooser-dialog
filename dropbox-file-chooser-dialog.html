@@ -120,7 +120,7 @@ Polymer({
     /**
      * The API key to access Dropbox.
      */
-    apiKey: String,
+    appKey: String,
 
     /**
      * The mode of dialog. Either `open` (default) or `save`.
@@ -211,7 +211,7 @@ Polymer({
   },
 
   attached: function () {
-    this._dropbox = new Dropbox.Client({ key: this.apiKey });
+    this._dropbox = new Dropbox.Client({ key: this.appKey });
     this._updateAuthDriver();
   },
 
