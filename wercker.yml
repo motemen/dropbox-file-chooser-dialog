@@ -7,6 +7,10 @@ build:
         code: |
           ./node_modules/bower/bin/bower install --allow-root --config.interactive=false
     - script:
+        name: vendor
+        code: |
+          npm run vendor
+    - script:
         name: npm test
         code: |
           xvfb-run npm test
