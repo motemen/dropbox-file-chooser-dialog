@@ -293,7 +293,9 @@ Polymer({
     if (entry.isFolder) {
       this._enterFolder(entry.path);
       this._focusedItem = e.target;
-    } else if (this.mode === 'open') {
+    } else if (this.isSaveMode) {
+      this.$.filename.value = entry.name;
+    } else {
       this.close();
       this.fire('dropbox-file-chosen-open', { file: entry });
     }
