@@ -71,7 +71,7 @@ Example:
       border-top: 1px solid rgba(0,0,0,.12);
     }
 
-    .backButton {
+    .back-button {
       transition: all 0.3s;
       width: 24px;
       margin-right: 8px;
@@ -140,6 +140,13 @@ Polymer({
       computed: '_isSaveMode(mode)'
     },
 
+    path: String,
+
+    /**
+     * Set this URL (relative allowed) to an OAuth receiver to use popup-based
+     * authentication.
+     * cf. demo/oauth_receiver.html
+     */
     popupOauthReceiverUrl: {
       type: String,
       observer: '_popupOauthReceiverUrlChanged'
@@ -223,7 +230,7 @@ Polymer({
   _enterFolder: function (path) {
     var _this = this;
 
-    this.path = path;
+    this.path = path || '/';
     this.disabled = true;
 
     if (path !== '/' && path !== '') {
@@ -245,7 +252,7 @@ Polymer({
         _this._focusedItem = null;
       }
 
-      _this.current = dir;
+      _this.folder = dir;
       _this.entries = entries;
 
       _this.fire('dropbox-folder-loaded');
@@ -312,7 +319,7 @@ Polymer({
     if (this.disabled) return;
 
     this.close();
-    this.fire('dropbox-file-chosen-save', { folder: this.current, filename: this.$.filename.value });
+    this.fire('dropbox-file-chosen-save', { folder: this.folder, filename: this.$.filename.value });
   },
 
   _onBack: function () {

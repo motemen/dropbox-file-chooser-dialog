@@ -34,7 +34,11 @@ window.addEventListener('WebComponentsReady', function () {
   });
 
   dialog.addEventListener('dropbox-file-chosen-open', function (ev) {
-    alert('You have chosen: ' + ev.detail.file.path);
+    alert('You have chosen to open: ' + ev.detail.file.path);
+  });
+
+  dialog.addEventListener('dropbox-file-chosen-save', function (ev) {
+    alert('You have chosen to save: ' + ev.detail.folder.path + ',' + ev.detail.filename);
   });
 });
     </script>
