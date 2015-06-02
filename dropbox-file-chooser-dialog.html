@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
+<link rel="import" href="../paper-dialog-behavior/paper-dialog-behavior.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
@@ -20,22 +20,24 @@ Example:
 @demo demo/index.html
 -->
 <dom-module id="dropbox-file-chooser-dialog">
+  <link rel="import" type="css" href="../paper-dialog-behavior/paper-dialog-common.css">
   <style>
     :host {
-      background: #FAFAFA;
-      font-family: 'Roboto', 'Noto', sans-serif;
-
       @apply(--layout-vertical);
 
-      @apply(--shadow-elevation-2dp);
-      @apply(--shadow-transition);
+      --paper-toolbar-background: var(--dropbox-file-chooser-dialog-header-background-color, #E0E0E0);
+      --paper-toolbar-color: var(--dropbox-file-chooser-dialog-header-color, #000000);
+    }
+
+    :host > ::content > *:first-child {
+      margin-top: 0;
     }
 
     .item {
       cursor: pointer;
       height: 48px;
       font-size: 16px;
-      padding: 16px;
+      padding: 16px 24px;
       box-sizing: border-box;
       line-height: 16px;
       vertical-align: middle;
@@ -46,10 +48,10 @@ Example:
       outline: none;
     }
 
-    ul#entries {
+    ul.entries {
       list-style: none;
       margin-left: 0;
-      padding-left: 0;
+      padding: 0;
 
       overflow-y: scroll;
 
@@ -58,32 +60,28 @@ Example:
       width: 100%;
     }
 
-    ul#entries[disabled] {
+    ul.entries[disabled] {
       opacity: 0.5;
       transition: opacity 0.3s;
     }
 
-    #save-toolbar {
+    .buttons {
       padding: 8px;
+      padding-left: 24px;
       border-top: 1px solid rgba(0,0,0,.12);
     }
 
-    #backButton {
+    .backButton {
       transition: all 0.3s;
       width: 24px;
       margin-right: 8px;
     }
 
-    #backButton.hidden {
+    .back-button.hidden {
       opacity: 0;
       transform: translateX(-100%);
       width: 0;
       margin-right: 0;
-    }
-
-    paper-toolbar {
-      background-color: var(--dropbox-file-chooser-dialog-header-background-color, #E0E0E0);
-      color: var(--dropbox-file-chooser-dialog-header-color, #000000);
     }
 
     paper-button:focus {
@@ -91,21 +89,22 @@ Example:
     }
   </style>
   <template>
-    <paper-header-panel class="flex" mode="waterfall">
+    <paper-header-panel class="flex no-padding" mode="waterfall">
       <paper-toolbar>
-        <paper-icon-button id="backButton" class="hidden" icon="arrow-back" on-tap="_onBack" disabled$="[[disabled]]"></paper-icon-button>
-        <heading>{{path}}</heading>
+        <h2>
+          <paper-icon-button id="backButton" class="back-button hidden" icon="arrow-back" on-tap="_onBack" disabled$="[[disabled]]"></paper-icon-button>
+          <span>{{path}}</span>
+        </h2>
       </paper-toolbar>
       <div>
-        <content select=".loading" class="flex" hidden$="[[entries.length]]"></content>
-        <ul id="entries" disabled$="[[disabled]]">
+        <ul id="entries" class="entries flex" disabled$="[[disabled]]">
           <template is="dom-repeat" items="[[entries]]">
             <li class="item" on-tap="_onEnterItem" tabindex="0">{{item.name}}</li>
           </template>
         </ul>
       </div>
     </paper-header-panel>
-    <div id="save-toolbar" class="layout horizontal" hidden$="[[!isSaveMode]]">
+    <div class="buttons layout horizontal" hidden$="[[!isSaveMode]]">
       <paper-input id="filename" label="filename" required no-label-float class="flex" disabled$="[[disabled]]"></paper-input>
       <paper-button tabindex="0" on-tap="_onSave" disabled$="[[disabled]]">Save</paper-button>
     </div>
@@ -148,7 +147,7 @@ Polymer({
   },
 
   behaviors: [
-    Polymer.IronOverlayBehavior
+    Polymer.PaperDialogBehavior
   ],
 
   _isSaveMode: function (mode) {

@@ -18,14 +18,19 @@ dropbox-file-chooser-dialog {
   <body>
     <dropbox-file-chooser-dialog app-key="9qhn8uij0flyuyw" popup-oauth-receiver-url="./oauth_receiver.html" with-backdrop></dropbox-file-chooser-dialog>
 
-    <button>Open</button>
+    <button id="open">Open</button>
+    <button id="save">Save</button>
 
     <script>
 window.addEventListener('WebComponentsReady', function () {
   var dialog = document.querySelector('dropbox-file-chooser-dialog');
 
-  document.querySelector('button').addEventListener('click', function () {
-    dialog.openFolder('/');
+  document.querySelector('#open').addEventListener('click', function () {
+    dialog.openFolder('/', 'open');
+  });
+
+  document.querySelector('#save').addEventListener('click', function () {
+    dialog.openFolder('/', 'save');
   });
 
   dialog.addEventListener('dropbox-file-chosen-open', function (ev) {
