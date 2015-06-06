@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+    <link rel="import" href="../dropbox-file-chooser-dialog.html">
+  </head>
+  <body>
+
+    <dropbox-file-chooser-dialog app-key="x"></dropbox-file-chooser-dialog>
+
+    <script>
+      document.addEventListener('WebComponentsReady', function () {
+        var dropbox = {
+          authenticate: function(cb) {
+            cb(null, dropbox)
+          },
+          readdir: function (path, opt, cb) {
+            var dir = { path: path };
+            var entries = [];
+
+            entries.push({ name: 'folder1', path: path + '/folder1', isFolder: true });
+            entries.push({ name: 'file1', path: path + '/file1.txt', isFolder: false });
+
+            for (var i = 0; i < Math.random() * 10; i++) {
+              var name = Math.random().toString(36).substring(2);
+              var e = { name: name, path: path + '/' + name, isFolder: true };
+              entries.push(e);
+            }
+
+            setTimeout(function () {
+              cb(null, null, dir, entries)
+            }, 1000 * Math.random() + 300);
+          },
+          isAuthenticated: function () { return true }
+        };
+
+        document.querySelector('dropbox-file-chooser-dialog')._dropbox = dropbox;
+      });
+    </script>
+
+    <script>
+      var dialog = document.querySelector('dropbox-file-chooser-dialog');
+
+      function once (node, event, cb) {
+        var handler = function () {
+          node.removeEventListener(event, handler);
+          cb.apply(this, arguments);
+        };
+        node.addEventListener(event, handler);
+      }
+
+      suite('<dropbox-file-chooser-dialog>', function () {
+        test('isSaveMode', function () {
+          dialog.mode = 'open';
+          assert.isFalse(dialog.isSaveMode);
+
+          dialog.mode = 'save';
+          assert.isTrue(dialog.isSaveMode);
+        });
+
+        test('openFolder(open)', function (done) {
+          once(dialog, 'dropbox-folder-loaded', function (ev) {
+            var backButton = dialog.$.backButton;
+
+            assert.isTrue(backButton.classList.contains('hidden'));
+
+            Polymer.Base.async(function () {
+              var entries = dialog.querySelectorAll('#entries li');
+              assert.operator(entries.length, '>=', 2);
+
+              once(dialog, 'dropbox-folder-loaded', function (ev) {
+                assert.isFalse(backButton.classList.contains('hidden'));
+                assert.isFalse(!!backButton.attributes.getNamedItem('disabled'));
+
+                once(dialog, 'dropbox-file-chosen-open', function (ev) {
+                  assert.equal(ev.detail.file.name, 'file1');
+                  done();
+                });
+
+                MockInteractions.tap(entries[1]);
+              });
+
+              MockInteractions.tap(entries[0]);
+              assert.isTrue(!!backButton.attributes.getNamedItem('disabled'));
+            });
+          });
+
+          dialog.openFolder('/', 'open');
+        });
+
+        test('openFolder(save)', function (done) {
+          once(dialog, 'dropbox-folder-loaded', function (ev) {
+            var backButton = dialog.$.backButton;
+
+            assert.isTrue(backButton.classList.contains('hidden'));
+
+            Polymer.Base.async(function () {
+              var entries = dialog.querySelectorAll('#entries li');
+              assert.operator(entries.length, '>=', 2);
+
+              once(dialog, 'dropbox-folder-loaded', function (ev) {
+                assert.isFalse(backButton.classList.contains('hidden'));
+                assert.isFalse(!!backButton.attributes.getNamedItem('disabled'));
+
+                dialog.$.filename.value = 'foobar';
+
+                once(dialog, 'dropbox-file-chosen-save', function (ev) {
+                  assert.equal(ev.detail.filename, 'foobar');
+                  done();
+                });
+
+                MockInteractions.tap(dialog.querySelector('paper-button'));
+
+                done();
+              });
+
+              MockInteractions.tap(entries[0]);
+              assert.isTrue(!!backButton.attributes.getNamedItem('disabled'));
+            });
+          });
+
+          dialog.openFolder('/', 'save');
+        });
+      });
+    </script>
+
+  </body>
+</html>

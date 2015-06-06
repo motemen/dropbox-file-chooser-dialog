@@ -1,0 +1,22 @@
+box: motemen/nodejs-java-browsers
+build:
+  steps:
+    - npm-install
+    - script:
+        name: bower install
+        code: |
+          ./node_modules/bower/bin/bower install --allow-root --config.interactive=false
+    - script:
+        name: vendor
+        code: |
+          npm run vendor
+    - script:
+        name: npm test
+        code: |
+          xvfb-run npm test
+deploy:
+  steps:
+    - motemen/polymer-element-build-docs
+    - lukevivier/gh-pages@0.2.1:
+        token: $GITHUB_TOKEN
+        basedir: docs
