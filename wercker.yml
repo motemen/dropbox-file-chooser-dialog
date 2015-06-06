@@ -16,30 +16,7 @@ build:
           xvfb-run npm test
 deploy:
   steps:
-    - script:
-        name: generate gh-pages content
-        code: |
-          set -x
-
-          url=$(git config remote.origin.url)
-          url=${url%.git}
-
-          name=$(basename $url)
-          user=$(basename $(dirname $url))
-          user=${user#*:}
-
-          out=./gh-pages
-
-          rm -rf $out
-          mkdir -p $out
-
-          cp -R bower_components $out/components
-
-          git archive --prefix=components/$name/ HEAD | tar x -C $out
-
-          git rev-parse HEAD > $out/GIT_REVISION
-
-          cat $out/components/$name/index.html | sed "s:<head>:<head><base href='components/$name/'>:" > $out/index.html
+    - motemen/polymer-element-build-docs
     - lukevivier/gh-pages@0.2.1:
         token: $GITHUB_TOKEN
-        basedir: gh-pages
+        basedir: docs
